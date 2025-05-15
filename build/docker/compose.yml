@@ -1,0 +1,28 @@
+
+services:
+  tribler:
+    image: ghcr.io/tribler/tribler:latest
+    security_opt:
+      - apparmor:unconfined  # Not ideal, but allows DBUS communication TO host from the container (see "dirty hack")
+    environment:
+      # DBUS/Xorg stuff
+      - DISPLAY=$DISPLAY
+      - DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS
+      - XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR
+      - XAUTHORITY=$XAUTHORITY
+      - XDG_CACHE_HOME=$XDG_CACHE_HOME
+      # Dirty hack to forward org.freedesktop.portal.Desktop DBUS to host
+      - BROWSER=x-www-browser
+      # Tribler settings
+      - CORE_API_PORT=8085
+      - CORE_API_KEY=changeme
+    network_mode: host
+    volumes:
+      # Tray icons
+      - $XDG_CACHE_HOME/tmp/:/tmp
+      # Xorg stuff
+      - /run:/run
+      # Tribler directories
+      - ~/.Tribler:/state
+      - ~/downloads/TriblerDownloads:/downloads
+    user: $(id -u):$(id -g)
